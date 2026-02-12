@@ -437,7 +437,7 @@
                         type="text"
                         class="search-input"
                         id="searchInput"
-                        placeholder="名前、会社名、またはメールアドレスで検索..."
+                        placeholder="名前、かな、会社名、メールアドレス、または興味で検索..."
                     >
                 </div>
                 <div class="search-results" id="searchResults"></div>
@@ -545,8 +545,10 @@
 
                 return (
                     p.name.toLowerCase().includes(query) ||
+                    (p.nameKana && p.nameKana.toLowerCase().includes(query)) ||
                     p.company.toLowerCase().includes(query) ||
-                    p.email.toLowerCase().includes(query)
+                    p.email.toLowerCase().includes(query) ||
+                    (p.interests && p.interests.toLowerCase().includes(query))
                 );
             });
             // チェックイン済みフィルター時は時系列順(最新が上)
@@ -617,7 +619,7 @@
                             <div>
                                 <span class="close-btn" onclick="toggleExpand('${p.id}')">▲ 閉じる</span>
                                 <div class="result-expanded">
-                                    <div class="result-name">${p.name}</div>
+                                    <div class="result-name">${p.name}${p.nameKana ? ` (${p.nameKana})` : ''}</div>
                                     <div class="result-details">
                                         🏢 ${p.company}<br>
                                         ${p.role ? `👤 ${p.role}<br>` : ''}
@@ -730,10 +732,11 @@
                     const participant = {
                         id: `${Date.now()}-${i}`,
                         name: values[0] || '',
-                        company: values[1] || '',
-                        email: values[2] || '',
-                        role: values[3] || '',
-                        interests: values[4] || '',
+                        nameKana: values[1] || '',
+                        company: values[2] || '',
+                        email: values[3] || '',
+                        role: values[4] || '',
+                        interests: values[5] || '',
                         checkedIn: false,
                         checkedInTime: null,
                         memo: ''
@@ -754,10 +757,11 @@
         });
         // CSVエクスポート
         window.handleExport = function() {
-            const headers = ['名前', '会社名', 'メールアドレス', '役割', '聞きたい話・繋がりたい方', 'チェックイン状況', 'チェックイン時刻', 'メモ'];
+            const headers = ['名前', 'かな', '会社名', 'メールアドレス', '役割', '聞きたい話・繋がりたい方', 'チェックイン状況', 'チェックイン時刻', 'メモ'];
 
             const rows = participants.map(p => [
                 p.name,
+                p.nameKana || '',
                 p.company,
                 p.email,
                 p.role || '',
